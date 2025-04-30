@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Modern professional color palette */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    
+    --radius: 0.5rem;
+    
+    /* Status colors */
+    --success: 142 71% 45%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+    --info: 200 98% 39%;
+    --info-foreground: 210 40% 98%;
+    
+    /* Chart colors */
+    --chart-1: 221 83% 53%;
+    --chart-2: 180 70% 45%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+  }
+ 
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 215 27% 17%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 215 27% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 215 27% 17%;
+    --input: 215 27% 17%;
+    --ring: 224 76% 48%;
+    
+    /* Status colors */
+    --success: 142 69% 32%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 40%;
+    --warning-foreground: 210 40% 98%;
+    --info: 200 98% 30%;
+    --info-foreground: 210 40% 98%;
+    
+    /* Chart colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 180 70% 35%;
+    --chart-3: 142 69% 32%;
+    --chart-4: 38 92% 40%;
+    --chart-5: 0 62% 30%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Make the titlebar draggable in Electron */
+  .draggable {
+    -webkit-app-region: drag;
+  }
+  
+  /* Make buttons in titlebar NOT draggable so they work properly */
+  .draggable button {
+    -webkit-app-region: no-drag;
+  }
+  
+  /* Card styling */
+  .card-dashboard {
+    @apply bg-card shadow-lg border border-border/50 rounded-lg transition-all hover:shadow-md;
+  }
+  
+  /* Status badges */
+  .status-badge {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-pending {
+    @apply bg-warning/15 text-warning-foreground border border-warning/20;
+  }
+  
+  .status-approved {
+    @apply bg-success/15 text-success-foreground border border-success/20;
+  }
+  
+  .status-rejected {
+    @apply bg-destructive/15 text-destructive-foreground border border-destructive/20;
+  }
+  
+  .status-processing {
+    @apply bg-info/15 text-info-foreground border border-info/20;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted-foreground/50;
+  }
+}
