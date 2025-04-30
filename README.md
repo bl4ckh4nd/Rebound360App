@@ -5,6 +5,8 @@
 
 **⚠️ Beta Software:** This application is currently in beta. Expect bugs, incomplete features, and potential changes. Use with caution.
 
+DOCS: [Handbuch(German)](https://docs.google.com/document/d/1-GPRXB8ypdeiFf4Ja4HsdQDjnMNmcEXyak7AtBQQpjU/edit?usp=sharing)
+
 ## Overview
 
 Rebound360 is a desktop application built with Electron, React, and TypeScript, designed to streamline supplier returns management and internal procurement processes, with integration capabilities for JTL-Wawi.
