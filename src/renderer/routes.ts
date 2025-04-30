@@ -1,4 +1,4 @@
-import { Router, Route, RootRoute, FileRoute } from '@tanstack/react-router'
+import { Router, Route, RootRoute, createMemoryHistory } from '@tanstack/react-router'
 import * as React from 'react'
 import { RootLayout } from '../components/root-layout'
 import { Dashboard } from '../components/dashboard'
@@ -151,6 +151,10 @@ const suppliersRoute = new Route({
   }
 });
 
+const memoryHistory = createMemoryHistory({
+  initialEntries: ['/'], // Start at the root path explicitly
+});
+
 // Create router
 export const router = new Router({
   routeTree: rootRoute.addChildren([
@@ -168,6 +172,7 @@ export const router = new Router({
     settingsRoute,
     suppliersRoute
   ]),
+  history: memoryHistory,
   defaultPreload: 'intent',
 });
 
