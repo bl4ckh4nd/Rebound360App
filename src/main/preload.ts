@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import path from 'path';
 
 console.log('[Preload] Script starting execution.');
 
@@ -64,6 +65,14 @@ try {
     }
   });
   console.log('[Preload] SUCCESS: electron exposed.');
+
+  console.log('[Preload] Attempting to expose electronPath...');
+  contextBridge.exposeInMainWorld('electronPath', {
+    join: (...args: string[]) => path.join(...args),
+    dirname: (filePath: string) => path.dirname(filePath),
+    basename: (filePath: string) => path.basename(filePath)
+  });
+  console.log('[Preload] SUCCESS: electronPath exposed.');
 
   console.log('[Preload] Script finished execution successfully.');
 

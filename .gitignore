@@ -11,3 +11,4 @@ docs/*
 .env
 .env copy
 .vite/*
+*.md

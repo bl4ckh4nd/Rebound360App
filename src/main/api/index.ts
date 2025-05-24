@@ -3,6 +3,7 @@ import returnsRouter from './returns';
 import ordersRouter from './orders';
 import settingsRouter from './settings';
 import procurementRouter from './procurement';
+import shippingRouter from './shipping';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.use('/returns', returnsRouter);
 router.use('/orders', ordersRouter);
 router.use('/settings', settingsRouter);
 router.use('/procurement', procurementRouter);
+router.use('/shipping', shippingRouter);
 
 // Remove test route for populating orders
 /*

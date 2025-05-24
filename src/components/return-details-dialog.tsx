@@ -8,6 +8,8 @@ import { DocumentViewer } from './document-viewer'
 import { DocumentUpload } from './document-upload'
 import { CreditNoteDialog } from './credit-note-dialog'
 import { ReconcileDialog } from './reconcile-dialog'
+import { ShippingLabelDialog } from './shipping-label-dialog'
+import { ShippingLabelsList } from './shipping-labels-list'
 import { format, isValid, parseISO } from 'date-fns'
 import { useWorkflowByAction, useCustomFields } from '../renderer/hooks/useSettings'
 import { fieldLabels } from './status-required-fields-form'
@@ -74,6 +76,8 @@ export function ReturnDetailsDialog({
   const [missingRequiredFields, setMissingRequiredFields] = useState<string[]>([])
   const [isStatusTransitionOpen, setIsStatusTransitionOpen] = useState(false)
   const [activeCustomFieldsSheet, setActiveCustomFieldsSheet] = useState(false)
+  const [isShippingLabelDialogOpen, setIsShippingLabelDialogOpen] = useState(false)
+  const [refreshShippingLabels, setRefreshShippingLabels] = useState(0)
   
   // Find the current step in the workflow based on the return status
   useEffect(() => {
@@ -247,6 +251,7 @@ export function ReturnDetailsDialog({
               <TabsTrigger value="overview" className="data-[state=active]:border-primary data-[state=active]:text-primary">Übersicht</TabsTrigger>
               <TabsTrigger value="products" className="data-[state=active]:border-primary data-[state=active]:text-primary">Produkte</TabsTrigger>
               <TabsTrigger value="custom-fields" className="data-[state=active]:border-primary data-[state=active]:text-primary">Benutzerdefinierte Felder</TabsTrigger>
+              <TabsTrigger value="shipping" className="data-[state=active]:border-primary data-[state=active]:text-primary">Versand</TabsTrigger>
               <TabsTrigger value="documents" className="data-[state=active]:border-primary data-[state=active]:text-primary">Dokumente</TabsTrigger>
               <TabsTrigger value="history" className="data-[state=active]:border-primary data-[state=active]:text-primary">Verlauf & Notizen</TabsTrigger>
             </TabsList>
@@ -699,6 +704,37 @@ export function ReturnDetailsDialog({
                   )}
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="shipping" className="p-6 min-h-[400px] space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-primary" />
+                  <h3 className="font-medium text-lg">Versandetiketten</h3>
+                </div>
+                <Button
+                  onClick={() => setIsShippingLabelDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Versandetikett erstellen
+                </Button>
+              </div>
+
+              <ShippingLabelsList
+                returnId={parseInt(returnItem.id)}
+                onRefresh={() => setRefreshShippingLabels(prev => prev + 1)}
+                key={refreshShippingLabels}
+              />
+
+              <ShippingLabelDialog
+                open={isShippingLabelDialogOpen}
+                onOpenChange={setIsShippingLabelDialogOpen}
+                returnId={parseInt(returnItem.id)}
+                onSuccess={() => {
+                  setRefreshShippingLabels(prev => prev + 1);
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="documents" className="p-6 min-h-[400px]">

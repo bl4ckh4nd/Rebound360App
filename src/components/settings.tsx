@@ -5,6 +5,7 @@ import { DatabaseSettings } from './settings/database-settings'
 import { WorkflowSettings } from './settings/workflow-settings'
 import { ReasonSettings } from './settings/reason-settings'
 import { CustomFieldsSettings } from './settings/custom-fields-settings'
+import { DHLSettings } from './settings/dhl-settings'
 
 export function Settings() {
   const [activeTab, setActiveTab] = useState<string>('database')
@@ -15,11 +16,12 @@ export function Settings() {
       <h1 className="text-2xl font-bold">Einstellungen</h1>
       
       <Tabs ref={tabsRef} defaultValue="database" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-4 flex w-full max-w-3xl justify-start gap-1">
+        <TabsList className="mb-4 flex w-full max-w-4xl justify-start gap-1">
           <TabsTrigger value="database" className="flex-1 min-w-[180px]">Datenbankverbindung</TabsTrigger>
           <TabsTrigger value="workflow" className="flex-1 min-w-[150px]">Status-Workflows</TabsTrigger>
           <TabsTrigger value="custom-fields" className="flex-1 min-w-[180px]">Benutzerdefinierte Felder</TabsTrigger>
           <TabsTrigger value="reasons" className="flex-1 min-w-[100px]">Gründe</TabsTrigger>
+          <TabsTrigger value="dhl" className="flex-1 min-w-[120px]">DHL Versand</TabsTrigger>
         </TabsList>
         
         <TabsContent value="database">
@@ -74,6 +76,20 @@ export function Settings() {
             </CardHeader>
             <CardContent>
               <ReasonSettings />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="dhl">
+          <Card>
+            <CardHeader>
+              <CardTitle>DHL Versand</CardTitle>
+              <CardDescription>
+                Konfigurieren Sie die DHL API für automatische Versandetiketten
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DHLSettings />
             </CardContent>
           </Card>
         </TabsContent>

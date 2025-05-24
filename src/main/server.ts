@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors';
+import { configureExpressApp } from './config/express';
 import { setupReturnsApi } from './api/returns';
 import { setupDocumentsApi } from './api/documents';
 import { setupServerApi } from './api/server';
@@ -13,16 +13,9 @@ export class Server {
   private port: number;
 
   constructor(port: number) {
-    this.app = express();
+    this.app = configureExpressApp();
     this.port = port;
-    this.configureMiddleware();
     this.configureRoutes();
-  }
-
-  private configureMiddleware() {
-    this.app.use(cors());
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
   }
 
   private configureRoutes() {
@@ -43,7 +36,7 @@ export class Server {
 }
 
 // Create and start server if this file is run directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   const server = new Server(3001);
   server.start();
 }
