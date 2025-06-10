@@ -1,7 +1,9 @@
+import 'reflect-metadata'; // Must be first import for TypeORM
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { Server } from './server';
 import { initializeDatabase } from './database';
+import { initializeTypeORM, closeTypeORM } from './database/typeorm-config';
 import { setupReturnsApi } from './api/returns';
 import { setupDocumentsApi } from './api/documents';
 import { setupSettingsApi } from './api/settings';
@@ -26,6 +28,10 @@ async function initializeApp() {
   try {
     await initializeDatabase();
     console.log('[initializeApp] Database initialized.');
+    
+    // Initialize TypeORM
+    await initializeTypeORM();
+    console.log('[initializeApp] TypeORM initialized.');
 
     // Register IPC handlers
     // setupIpcHandlers(); // Uncomment if you have this
@@ -132,6 +138,11 @@ app.on('window-all-closed', () => {
     console.log('Quitting app (non-macOS).');
     app.quit();
   }
+});
+
+app.on('before-quit', async () => {
+  console.log('App quitting, closing TypeORM connection...');
+  await closeTypeORM();
 });
 
 // Error Handling

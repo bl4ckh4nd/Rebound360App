@@ -7,10 +7,14 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "noEmitOnError": false,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "composite": true,
     "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
@@ -20,6 +24,12 @@
   "include": [
     "src/main/**/*",
     "src/renderer/electron.d.ts"
+  ],
+  "exclude": [
+    "src/main/**/*test*.ts",
+    "src/main/**/*test*.js",
+    "src/main/database/test-*.ts",
+    "src/main/database/test-*.js"
   ],
   "references": [
     { "path": "./tsconfig.shared.json" }

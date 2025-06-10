@@ -1,6 +1,7 @@
 import * as settingsDb from './settings';
 import * as procurementDb from './procurement';
 import { initializeDatabase as initDbSchema } from './db';
+import { initializeTypeORM, closeTypeORM } from './typeorm-config';
 
 export async function initializeDatabase() {
   try {
@@ -10,6 +11,17 @@ export async function initializeDatabase() {
     console.log('Initializing base schema...');
     initDbSchema();
     console.log('Base schema initialized successfully');
+    
+    // Initialize TypeORM after base schema is ready
+    console.log('Initializing TypeORM...');
+    try {
+      await initializeTypeORM();
+      console.log('TypeORM initialized successfully');
+    } catch (error) {
+      console.error('Error initializing TypeORM:', error);
+      // Don't throw - allow app to continue with better-sqlite3 only
+      console.log('Continuing with better-sqlite3 only...');
+    }
     
     // Initialize procurement tables and workflow
     console.log('Initializing procurement tables...');
@@ -56,3 +68,7 @@ export * from './settings';
 
 // Export procurement-related database operations
 export * from './procurement';
+
+// Export TypeORM utilities
+export { initializeTypeORM, closeTypeORM, getDataSource } from './typeorm-config';
+export * from './repositories';

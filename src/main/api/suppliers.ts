@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response, NextFunction, RequestHandler } from 'express';
 // import { ParamsDictionary } from 'express-serve-static-core'; // Removed unused import
 import * as db from '../database/suppliers';
 import { Supplier } from '../../shared/types';
@@ -24,7 +24,7 @@ suppliersRouter.get('/', async (req: Request, res: Response, next: NextFunction)
 });
 
 // Get supplier by ID
-suppliersRouter.get('/:id', async (req: Request<{id: string}>, res: Response, next: NextFunction): Promise<void> => {
+const getSupplierByIdHandler: RequestHandler<{id: string}> = async (req, res, next) => {
   try {
     const jtlId = parseInt(req.params.id, 10);
     if (isNaN(jtlId)) {
@@ -41,7 +41,8 @@ suppliersRouter.get('/:id', async (req: Request<{id: string}>, res: Response, ne
     console.error(`Error getting supplier ${req.params.id}:`, err);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
+};
+suppliersRouter.get('/:id', getSupplierByIdHandler);
 
 // Create supplier
 /*

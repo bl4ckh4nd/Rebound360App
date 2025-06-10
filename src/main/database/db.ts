@@ -20,6 +20,14 @@ export function getUploadsPath() {
   return getUploadsDir();
 }
 
+export function getDbPath() {
+  return path.join(app.getPath('userData'), 'supplier_returns.db');
+}
+
+export function getDatabase(): DatabaseType {
+  return db;
+}
+
 // Initialize database schema
 export function initializeDatabase() {
   // Create migrations table first

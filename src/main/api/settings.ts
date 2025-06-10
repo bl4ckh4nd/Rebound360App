@@ -3,6 +3,9 @@ import { ParamsDictionary, Query } from 'express-serve-static-core';
 import * as sql from 'mssql';
 import * as settingsDb from '../database/settings';
 import { DatabaseSettings, StatusWorkflow, StatusStep, ReturnReason, ReasonCategory, FollowUpAction, CustomField } from '../../shared/types';
+import workflowsHybridRouter from './workflows-hybrid';
+import customFieldsHybridRouter from './custom-fields-hybrid';
+import { featureFlags } from '../utils/feature-flags';
 
 type RequestHandler<P = ParamsDictionary, ResBody = any, ReqBody = any> = (
   req: Request<P, ResBody, ReqBody>,
@@ -140,97 +143,97 @@ router.post('/database/test', (async (req, res) => {
   }
 }) as RequestHandler<EmptyParams, any, DatabaseSettings>);
 
-// Status workflow endpoints
-router.get('/workflows', (async (req, res) => {
-  try {
-    const workflows = settingsDb.getAllWorkflows();
-    res.json({ data: workflows });
-  } catch (error) {
-    console.error('Error fetching workflows:', error);
-    res.status(500).json({ error: 'Failed to fetch workflows' });
-  }
-}) as RequestHandler);
+// Status workflow endpoints - MIGRATED TO HYBRID ROUTER BELOW
+// router.get('/workflows', (async (req, res) => {
+//   try {
+//     const workflows = settingsDb.getAllWorkflows();
+//     res.json({ data: workflows });
+//   } catch (error) {
+//     console.error('Error fetching workflows:', error);
+//     res.status(500).json({ error: 'Failed to fetch workflows' });
+//   }
+// }) as RequestHandler);
 
-router.get('/workflows/:id', (async (req, res) => {
-  try {
-    const workflow = settingsDb.getWorkflowById(req.params.id);
-    
-    if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
-    }
-    
-    res.json({ data: workflow });
-  } catch (error) {
-    console.error('Error fetching workflow:', error);
-    res.status(500).json({ error: 'Failed to fetch workflow' });
-  }
-}) as RequestHandler<IdParams>);
+// router.get('/workflows/:id', (async (req, res) => { // MIGRATED TO HYBRID ROUTER
+//   try {
+//     const workflow = settingsDb.getWorkflowById(req.params.id);
+//     
+//     if (!workflow) {
+//       return res.status(404).json({ error: 'Workflow not found' });
+//     }
+//     
+//     res.json({ data: workflow });
+//   } catch (error) {
+//     console.error('Error fetching workflow:', error);
+//     res.status(500).json({ error: 'Failed to fetch workflow' });
+//   }
+// }) as RequestHandler<IdParams>);
 
-router.get('/workflows/by-action/:action', (async (req, res) => {
-  try {
-    const workflow = settingsDb.getWorkflowByFollowUpAction(req.params.action as FollowUpAction);
-    
-    if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found for this action' });
-    }
-    
-    res.json({ data: workflow });
-  } catch (error) {
-    console.error('Error fetching workflow by action:', error);
-    res.status(500).json({ error: 'Failed to fetch workflow by action' });
-  }
-}) as RequestHandler<ActionParams>);
+// router.get('/workflows/by-action/:action', (async (req, res) => { // MIGRATED TO HYBRID ROUTER
+//   try {
+//     const workflow = settingsDb.getWorkflowByFollowUpAction(req.params.action as FollowUpAction);
+//     
+//     if (!workflow) {
+//       return res.status(404).json({ error: 'Workflow not found for this action' });
+//     }
+//     
+//     res.json({ data: workflow });
+//   } catch (error) {
+//     console.error('Error fetching workflow by action:', error);
+//     res.status(500).json({ error: 'Failed to fetch workflow by action' });
+//   }
+// }) as RequestHandler<ActionParams>);
 
-router.post('/workflows', (async (req, res) => {
-  try {
-    const workflow: Omit<StatusWorkflow, 'id' | 'createdAt' | 'updatedAt'> = req.body;
-    
-    if (!workflow.name || !workflow.followUpAction) {
-      return res.status(400).json({ error: 'Missing required workflow data' });
-    }
-    
-    const id = settingsDb.createWorkflow(workflow);
-    const createdWorkflow = settingsDb.getWorkflowById(id);
-    
-    res.status(201).json({ data: createdWorkflow });
-  } catch (error) {
-    console.error('Error creating workflow:', error);
-    res.status(500).json({ error: 'Failed to create workflow' });
-  }
-}) as RequestHandler<EmptyParams, any, Omit<StatusWorkflow, 'id' | 'createdAt' | 'updatedAt'>>);
+// router.post('/workflows', (async (req, res) => { // MIGRATED TO HYBRID ROUTER
+//   try {
+//     const workflow: Omit<StatusWorkflow, 'id' | 'createdAt' | 'updatedAt'> = req.body;
+//     
+//     if (!workflow.name || !workflow.followUpAction) {
+//       return res.status(400).json({ error: 'Missing required workflow data' });
+//     }
+//     
+//     const id = settingsDb.createWorkflow(workflow);
+//     const createdWorkflow = settingsDb.getWorkflowById(id);
+//     
+//     res.status(201).json({ data: createdWorkflow });
+//   } catch (error) {
+//     console.error('Error creating workflow:', error);
+//     res.status(500).json({ error: 'Failed to create workflow' });
+//   }
+// }) as RequestHandler<EmptyParams, any, Omit<StatusWorkflow, 'id' | 'createdAt' | 'updatedAt'>>);
 
-router.put('/workflows/:id', (async (req, res) => {
-  try {
-    const updates: Partial<StatusWorkflow> = req.body;
-    const isUpdated = settingsDb.updateWorkflow(req.params.id, updates);
-    
-    if (!isUpdated) {
-      return res.status(404).json({ error: 'Workflow not found' });
-    }
-    
-    const updatedWorkflow = settingsDb.getWorkflowById(req.params.id);
-    
-    res.json({ data: updatedWorkflow });
-  } catch (error) {
-    console.error('Error updating workflow:', error);
-    res.status(500).json({ error: 'Failed to update workflow' });
-  }
-}) as RequestHandler<IdParams, any, Partial<StatusWorkflow>>);
+// router.put('/workflows/:id', (async (req, res) => { // MIGRATED TO HYBRID ROUTER
+//   try {
+//     const updates: Partial<StatusWorkflow> = req.body;
+//     const isUpdated = settingsDb.updateWorkflow(req.params.id, updates);
+//     
+//     if (!isUpdated) {
+//       return res.status(404).json({ error: 'Workflow not found' });
+//     }
+//     
+//     const updatedWorkflow = settingsDb.getWorkflowById(req.params.id);
+//     
+//     res.json({ data: updatedWorkflow });
+//   } catch (error) {
+//     console.error('Error updating workflow:', error);
+//     res.status(500).json({ error: 'Failed to update workflow' });
+//   }
+// }) as RequestHandler<IdParams, any, Partial<StatusWorkflow>>);
 
-router.delete('/workflows/:id', (async (req, res) => {
-  try {
-    const isDeleted = settingsDb.deleteWorkflow(req.params.id);
-    
-    if (!isDeleted) {
-      return res.status(404).json({ error: 'Workflow not found' });
-    }
-    
-    res.status(204).send();
-  } catch (error) {
-    console.error('Error deleting workflow:', error);
-    res.status(500).json({ error: 'Failed to delete workflow' });
-  }
-}) as RequestHandler<IdParams>);
+// router.delete('/workflows/:id', (async (req, res) => { // MIGRATED TO HYBRID ROUTER
+//   try {
+//     const isDeleted = settingsDb.deleteWorkflow(req.params.id);
+//     
+//     if (!isDeleted) {
+//       return res.status(404).json({ error: 'Workflow not found' });
+//     }
+//     
+//     res.status(204).send();
+//   } catch (error) {
+//     console.error('Error deleting workflow:', error);
+//     res.status(500).json({ error: 'Failed to delete workflow' });
+//   }
+// }) as RequestHandler<IdParams>);
 
 // Return reason categories endpoints
 router.get('/reason-categories', (async (req, res) => {
@@ -495,8 +498,21 @@ router.delete('/custom-fields/:id', (async (req, res) => {
   }
 }) as RequestHandler<IdParams>);
 
+// Use hybrid routers for gradual TypeORM migration
+router.use('/workflows', workflowsHybridRouter);
+
+// Check if TypeORM is enabled for custom fields
+if (featureFlags.isEnabled('useTypeORMForCustomFields')) {
+  router.use('/custom-fields', customFieldsHybridRouter);
+}
+
 // Export the setup function to match main.ts expectation
 export function setupSettingsApi() {
+  // Log feature flag status on API setup
+  if (process.env.NODE_ENV === 'development') {
+    featureFlags.logStatus();
+  }
+  
   return router;
 }
 

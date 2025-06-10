@@ -57,6 +57,9 @@ export interface CustomField {
   defaultValue?: string | number | null
   options?: string[] // For select type fields
   entityType?: 'return' | 'requisition' | 'purchase_order' | 'supplier' // Added entity type for procurement
+  isActive?: boolean      // Whether the field is currently active
+  sortOrder?: number      // Display order for the field
+  placeholder?: string    // Placeholder text for input fields
   createdAt?: string
   updatedAt?: string
 }

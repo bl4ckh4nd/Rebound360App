@@ -30,7 +30,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Get order by ID
-router.get('/:id', (req: Request<{ id: string }>, res: Response, next: NextFunction): void => {
+const getOrderByIdHandler: RequestHandler<{ id: string }> = (req, res, next) => {
   try {
     const jtlId = parseInt(req.params.id, 10);
     if (isNaN(jtlId)) {
@@ -47,7 +47,8 @@ router.get('/:id', (req: Request<{ id: string }>, res: Response, next: NextFunct
     console.error(`Error fetching order ${req.params.id}:`, error);
     next(error);
   }
-});
+};
+router.get('/:id', getOrderByIdHandler);
 
 // Create a new order
 router.post('/', (req, res, next) => {
@@ -70,7 +71,7 @@ router.put('/:id', (req, res, next) => {
 });
 
 // Update order status
-router.patch('/:id/status', (req: Request<{ id: string }>, res: Response, next: NextFunction): void => {
+const updateOrderStatusHandler: RequestHandler<{ id: string }> = (req, res, next) => {
   try {
     const { status } = req.body;
     if (!status) {
@@ -95,10 +96,11 @@ router.patch('/:id/status', (req: Request<{ id: string }>, res: Response, next: 
     console.error(`Error updating status for order ${req.params.id}:`, error);
     next(error);
   }
-});
+};
+router.patch('/:id/status', updateOrderStatusHandler);
 
 // Create a return from an order
-router.post('/:id/create-return', (req: Request<{ id: string }>, res: Response, next: NextFunction): void => {
+const createReturnFromOrderHandler: RequestHandler<{ id: string }> = (req, res, next) => {
   try {
     const jtlOrderId = parseInt(req.params.id, 10);
     if (isNaN(jtlOrderId)) {
@@ -130,7 +132,8 @@ router.post('/:id/create-return', (req: Request<{ id: string }>, res: Response, 
     console.error(`Error creating return for order ${req.params.id}:`, error);
     next(error);
   }
-});
+};
+router.post('/:id/create-return', createReturnFromOrderHandler);
 
 // Delete an order
 router.delete('/:id', (req, res, next) => {

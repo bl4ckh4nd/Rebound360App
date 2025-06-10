@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, RequestHandler } from 'express';
 import { dhlService } from '../services/dhl-service';
 import { shippingDb } from '../database/shipping';
 import type { DHLShipmentRequest, DHLShipmentAddress } from '../services/dhl-service';
@@ -30,17 +30,19 @@ router.post('/labels', async (req: Request, res: Response) => {
     } = req.body;
 
     if (!returnId || !shipper || !consignee || !weight) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Missing required fields: returnId, shipper, consignee, weight'
       });
+      return;
     }
 
     // Check if DHL is configured
     const isConfigured = await dhlService.isConfigured();
     if (!isConfigured) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'DHL API credentials not configured. Please configure them in settings.'
       });
+      return;
     }
 
     // Prepare shipment request
@@ -104,11 +106,12 @@ router.post('/labels', async (req: Request, res: Response) => {
 });
 
 // Get shipping labels for a return
-router.get('/labels/return/:returnId', async (req: Request, res: Response) => {
+const getShippingLabelsByReturnHandler: RequestHandler<{ returnId: string }> = async (req, res) => {
   try {
     const returnId = parseInt(req.params.returnId);
     if (isNaN(returnId)) {
-      return res.status(400).json({ error: 'Invalid return ID' });
+      res.status(400).json({ error: 'Invalid return ID' });
+      return;
     }
 
     const labels = shippingDb.getShippingLabelsByReturnId(returnId);
@@ -120,19 +123,22 @@ router.get('/labels/return/:returnId', async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-});
+};
+router.get('/labels/return/:returnId', getShippingLabelsByReturnHandler);
 
 // Get shipping label by ID
-router.get('/labels/:id', async (req: Request, res: Response) => {
+const getShippingLabelByIdHandler: RequestHandler<{ id: string }> = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid label ID' });
+      res.status(400).json({ error: 'Invalid label ID' });
+      return;
     }
 
     const label = shippingDb.getShippingLabelById(id);
     if (!label) {
-      return res.status(404).json({ error: 'Shipping label not found' });
+      res.status(404).json({ error: 'Shipping label not found' });
+      return;
     }
 
     res.json({ success: true, data: label });
@@ -143,19 +149,22 @@ router.get('/labels/:id', async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-});
+};
+router.get('/labels/:id', getShippingLabelByIdHandler);
 
 // Download shipping label PDF
-router.get('/labels/:id/download', async (req: Request, res: Response) => {
+const downloadShippingLabelHandler: RequestHandler<{ id: string }> = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid label ID' });
+      res.status(400).json({ error: 'Invalid label ID' });
+      return;
     }
 
     const label = shippingDb.getShippingLabelById(id);
     if (!label) {
-      return res.status(404).json({ error: 'Shipping label not found' });
+      res.status(404).json({ error: 'Shipping label not found' });
+      return;
     }
 
     // Convert base64 to buffer
@@ -163,7 +172,7 @@ router.get('/labels/:id/download', async (req: Request, res: Response) => {
     
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${label.label_filename || 'shipping_label.pdf'}"`);
-    res.setHeader('Content-Length', pdfBuffer.length);
+    res.setHeader('Content-Length', pdfBuffer.length.toString());
     
     res.send(pdfBuffer);
   } catch (error) {
@@ -173,23 +182,26 @@ router.get('/labels/:id/download', async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-});
+};
+router.get('/labels/:id/download', downloadShippingLabelHandler);
 
 // Track shipment
-router.get('/track/:trackingNumber', async (req: Request, res: Response) => {
+const trackShipmentHandler: RequestHandler<{ trackingNumber: string }> = async (req, res) => {
   try {
     const { trackingNumber } = req.params;
     
     if (!trackingNumber) {
-      return res.status(400).json({ error: 'Tracking number is required' });
+      res.status(400).json({ error: 'Tracking number is required' });
+      return;
     }
 
     // Check if DHL is configured
     const isConfigured = await dhlService.isConfigured();
     if (!isConfigured) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'DHL API credentials not configured. Please configure them in settings.'
       });
+      return;
     }
 
     const trackingInfo = await dhlService.trackShipment(trackingNumber);
@@ -205,26 +217,30 @@ router.get('/track/:trackingNumber', async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-});
+};
+router.get('/track/:trackingNumber', trackShipmentHandler);
 
 // Update shipping label status
-router.patch('/labels/:id/status', async (req: Request, res: Response) => {
+const updateShippingLabelStatusHandler: RequestHandler<{ id: string }> = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { status } = req.body;
 
     if (isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid label ID' });
+      res.status(400).json({ error: 'Invalid label ID' });
+      return;
     }
 
     if (!status) {
-      return res.status(400).json({ error: 'Status is required' });
+      res.status(400).json({ error: 'Status is required' });
+      return;
     }
 
     const updated = shippingDb.updateShippingLabelStatus(id, status);
     
     if (!updated) {
-      return res.status(404).json({ error: 'Shipping label not found' });
+      res.status(404).json({ error: 'Shipping label not found' });
+      return;
     }
 
     const updatedLabel = shippingDb.getShippingLabelById(id);
@@ -236,20 +252,23 @@ router.patch('/labels/:id/status', async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-});
+};
+router.patch('/labels/:id/status', updateShippingLabelStatusHandler);
 
 // Delete shipping label
-router.delete('/labels/:id', async (req: Request, res: Response) => {
+const deleteShippingLabelHandler: RequestHandler<{ id: string }> = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid label ID' });
+      res.status(400).json({ error: 'Invalid label ID' });
+      return;
     }
 
     const deleted = shippingDb.deleteShippingLabel(id);
     
     if (!deleted) {
-      return res.status(404).json({ error: 'Shipping label not found' });
+      res.status(404).json({ error: 'Shipping label not found' });
+      return;
     }
 
     res.json({ success: true, message: 'Shipping label deleted successfully' });
@@ -260,7 +279,8 @@ router.delete('/labels/:id', async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-});
+};
+router.delete('/labels/:id', deleteShippingLabelHandler);
 
 // DHL Settings endpoints
 router.get('/settings/dhl', async (req: Request, res: Response) => {
@@ -290,9 +310,10 @@ router.post('/settings/dhl', async (req: Request, res: Response) => {
     const { clientId, clientSecret } = req.body;
 
     if (!clientId || !clientSecret) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Both clientId and clientSecret are required'
       });
+      return;
     }
 
     await setDHLCredentials(clientId, clientSecret);
@@ -332,9 +353,10 @@ router.post('/settings/dhl/test', async (req: Request, res: Response) => {
   try {
     const isConfigured = await dhlService.isConfigured();
     if (!isConfigured) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'DHL API credentials not configured'
       });
+      return;
     }
 
     // Try to authenticate to test the connection
